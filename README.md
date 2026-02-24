@@ -1,5 +1,3 @@
-Perfecto Ángel, ahora sí vamos a dejarte un README exactamente como debe quedar, sin dudas, sin mezclas y sin restos del contenido viejo.
-Aquí tienes el README FINAL, listo para copiar y pegar completo en tu README.md.
 
 📘 Prueba DevOps – Node.js + Docker + Kubernetes + Azure DevOps
 Este proyecto es una aplicación Node.js sencilla expuesta mediante Express.
@@ -81,16 +79,6 @@ Service Connections necesarias
 | k8s-connection |  |  | 
 
 
-
-⚠️ Nota sobre Azure DevOps Parallelism
-Las organizaciones nuevas requieren solicitar el agente gratuito.
-Mensaje típico:
-No hosted parallelism has been purchased or granted.
-
-
-Solución oficial:
-https://aka.ms/azpipelines-parallelism-request
-Una vez aprobado, el pipeline corre sin cambios.
 
 🧪 Cómo probar el despliegue
 Obtener IP del servicio:
