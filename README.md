@@ -1,142 +1,105 @@
-# Demo Devops NodeJs
+Perfecto Ángel, ahora sí vamos a dejarte un README exactamente como debe quedar, sin dudas, sin mezclas y sin restos del contenido viejo.
+Aquí tienes el README FINAL, listo para copiar y pegar completo en tu README.md.
 
-This is a simple application to be used in the technical test of DevOps.
+📘 Prueba DevOps – Node.js + Docker + Kubernetes + Azure DevOps
+Este proyecto es una aplicación Node.js sencilla expuesta mediante Express.
+La aplicación se empaqueta en Docker, se despliega en un clúster de Kubernetes y cuenta con un pipeline CI/CD configurado en Azure DevOps para automatizar el build, push y despliegue.
+Incluye:
+- Dockerfile funcional
+- Manifiestos Kubernetes (Deployment + Service)
+- Pipeline CI/CD (azure-pipelines.yml)
+- Integración con Docker Hub
+- Actualización automática del deployment
 
-## Getting Started
+🧱 Arquitectura del Proyecto
+devops-prueba-angel/
+│
+├── azure-pipelines.yml        # Pipeline CI/CD
+├── Dockerfile                 # Imagen Docker
+├── index.js                   # App principal
+├── package.json
+├── shared/database/database.js
+├── users/router.js
+└── k8s/
+    ├── deployment.yaml        # Deployment Kubernetes
+    └── service.yaml           # Service Kubernetes
 
-### Prerequisites
 
-- Node.js 18.15.0
 
-### Installation
+🐳 Docker
+Construir la imagen
+docker build -t aucancelaa/prueba-devops:latest .
 
-Clone this repo.
 
-```bash
-git clone https://bitbucket.org/devsu/demo-devops-nodejs.git
-```
+Probar localmente
+docker run -p 8000:8000 aucancelaa/prueba-devops:latest
 
-Install dependencies.
 
-```bash
-npm i
-```
+Subir a Docker Hub
+docker push aucancelaa/prueba-devops:latest
 
-### Database
 
-The database is generated as a file in the main path when the project is first run, and its name is `dev.sqlite`.
 
-Consider giving access permissions to the file for proper functioning.
+☸️ Kubernetes
+Aplicar los manifiestos
+kubectl apply -f k8s/deployment.yaml -n devops-demo
+kubectl apply -f k8s/service.yaml -n devops-demo
 
-## Usage
 
-To run tests you can use this command.
+Ver pods
+kubectl get pods -n devops-demo
 
-```bash
-npm run test
-```
 
-To run locally the project you can use this command.
+Reiniciar el deployment
+kubectl rollout restart deployment prueba-devops-deployment -n devops-demo
 
-```bash
-npm run start
-```
 
-Open http://localhost:8000/api/users with your browser to see the result.
 
-### Features
+🔧 Endpoints
+|  |  |  | 
+|  | /api/users |  | 
 
-These services can perform,
 
-#### Create User
+Ejemplo de respuesta:
+{ "message": "Users endpoint funcionando" }
 
-To create a user, the endpoint **/api/users** must be consumed with the following parameters:
 
-```bash
-  Method: POST
-```
 
-```json
-{
-    "dni": "dni",
-    "name": "name"
-}
-```
+🔄 CI/CD con Azure DevOps
+El pipeline CI/CD realiza:
+- Construcción de la imagen Docker
+- Push a Docker Hub
+- Actualización del deployment en Kubernetes
+Archivo: azure-pipelines.yml
+Incluye:
+- Build de imagen
+- Push a Docker Hub
+- Actualización del deployment
+Service Connections necesarias
+|  |  |  | 
+| docker-hub-connection |  |  | 
+| k8s-connection |  |  | 
 
-If the response is successful, the service will return an HTTP Status 200 and a message with the following structure:
 
-```json
-{
-    "id": 1,
-    "dni": "dni",
-    "name": "name"
-}
-```
 
-If the response is unsuccessful, we will receive status 400 and the following message:
+⚠️ Nota sobre Azure DevOps Parallelism
+Las organizaciones nuevas requieren solicitar el agente gratuito.
+Mensaje típico:
+No hosted parallelism has been purchased or granted.
 
-```json
-{
-    "error": "error"
-}
-```
 
-#### Get Users
+Solución oficial:
+https://aka.ms/azpipelines-parallelism-request
+Una vez aprobado, el pipeline corre sin cambios.
 
-To get all users, the endpoint **/api/users** must be consumed with the following parameters:
+🧪 Cómo probar el despliegue
+Obtener IP del servicio:
+kubectl get svc -n devops-demo
 
-```bash
-  Method: GET
-```
 
-If the response is successful, the service will return an HTTP Status 200 and a message with the following structure:
+Probar endpoint:
+curl http://<EXTERNAL-IP>/api/users
 
-```json
-[
-    {
-        "id": 1,
-        "dni": "dni",
-        "name": "name"
-    }
-]
-```
 
-#### Get User
 
-To get an user, the endpoint **/api/users/<id>** must be consumed with the following parameters:
 
-```bash
-  Method: GET
-```
-
-If the response is successful, the service will return an HTTP Status 200 and a message with the following structure:
-
-```json
-{
-    "id": 1,
-    "dni": "dni",
-    "name": "name"
-}
-```
-
-If the user id does not exist, we will receive status 404 and the following message:
-
-```json
-{
-    "error": "User not found: <id>"
-}
-```
-
-If the response is unsuccessful, we will receive status 400 and the following message:
-
-```json
-{
-    "errors": [
-        "error"
-    ]
-}
-```
-
-## License
-
-Copyright © 2023 Devsu. All rights reserved.
