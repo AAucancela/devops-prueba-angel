@@ -2,7 +2,9 @@ trigger:
   - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: PoolCompilacion
+  demands:
+  - agent.name -equals AgentVR
 
 variables:
   NODE_VERSION: '18.x'
