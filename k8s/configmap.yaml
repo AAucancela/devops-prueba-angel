@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prueba-devops-config
+  namespace: devops-demo
+data:
+  APP_ENV: "production"
