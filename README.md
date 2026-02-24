@@ -1,5 +1,4 @@
-
-📘 Prueba DevOps – Node.js + Docker + Kubernetes + Azure DevOps
+Prueba DevOps – Node.js + Docker + Kubernetes + Azure DevOps
 Este proyecto es una aplicación Node.js sencilla expuesta mediante Express.
 La aplicación se empaqueta en Docker, se despliega en un clúster de Kubernetes y cuenta con un pipeline CI/CD configurado en Azure DevOps para automatizar el build, push y despliegue.
 Incluye:
@@ -80,6 +79,16 @@ Service Connections necesarias
 
 
 
+⚠️ Nota sobre Azure DevOps Parallelism
+Las organizaciones nuevas requieren solicitar el agente gratuito.
+Mensaje típico:
+No hosted parallelism has been purchased or granted.
+
+
+Solución oficial:
+https://aka.ms/azpipelines-parallelism-request
+Una vez aprobado, el pipeline corre sin cambios.
+
 🧪 Cómo probar el despliegue
 Obtener IP del servicio:
 kubectl get svc -n devops-demo
@@ -90,4 +99,9 @@ curl http://<EXTERNAL-IP>/api/users
 
 
 
-
+✅ Estado Final del Proyecto
+- Aplicación funcionando en Kubernetes ✔
+- Imagen Docker estable ✔
+- Rutas corregidas ✔
+- CI/CD configurado ✔ (pendiente de activación de parallelism)
+- README completo ✔
