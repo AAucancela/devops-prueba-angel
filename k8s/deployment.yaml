@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prueba-devops-deployment
+  namespace: devops-demo
+  labels:
+    app: prueba-devops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prueba-devops
+  template:
+    metadata:
+      labels:
+        app: prueba-devops
+    spec:
+      containers:
+        - name: prueba-devops
+          image: aucancelaa/prueba-devops:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: prueba-devops-config
+                  key: APP_ENV
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: prueba-devops-secret
+                  key: SECRET_KEY
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
