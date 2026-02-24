@@ -1,0 +1,43 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dockerRegistryServiceConnection: 'docker-hub-connection'
+  imageRepository: 'aucancelaa/prueba-devops'
+  containerRegistry: 'docker.io'
+  tag: '$(Build.BuildId)'
+  kubernetesServiceConnection: 'k8s-connection'
+  namespace: 'devops-demo'
+  deploymentName: 'prueba-devops-deployment'
+
+steps:
+- task: Docker@2
+  displayName: 'Build Docker image'
+  inputs:
+    command: 'build'
+    repository: '$(imageRepository)'
+    dockerfile: '**/Dockerfile'
+    tags: |
+      $(tag)
+
+- task: Docker@2
+  displayName: 'Push Docker image'
+  inputs:
+    command: 'push'
+    repository: '$(imageRepository)'
+    tags: |
+      $(tag)
+
+- task: Kubernetes@1
+  displayName: 'Set image in Kubernetes deployment'
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceConnection: '$(kubernetesServiceConnection)'
+    namespace: '$(namespace)'
+    command: 'set'
+    arguments: 'image deployment/$(deploymentName) prueba-devops-container=$(imageRepository):$(tag)'
