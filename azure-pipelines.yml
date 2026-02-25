@@ -33,7 +33,8 @@ steps:
         latest
         $(Build.BuildId)
 
-  - script: set PATH=%PATH%;C:\Users\Super\AppData\Local\Microsoft\WinGet\Links
+
+  - script: set PATH=%PATH%;C:\Program Files\Trivy
     displayName: "Fix PATH for Trivy"
 
   - script: |
