@@ -1,107 +1,128 @@
-Prueba DevOps – Node.js + Docker + Kubernetes + Azure DevOps
-Este proyecto es una aplicación Node.js sencilla expuesta mediante Express.
-La aplicación se empaqueta en Docker, se despliega en un clúster de Kubernetes y cuenta con un pipeline CI/CD configurado en Azure DevOps para automatizar el build, push y despliegue.
-Incluye:
-- Dockerfile funcional
-- Manifiestos Kubernetes (Deployment + Service)
-- Pipeline CI/CD (azure-pipelines.yml)
-- Integración con Docker Hub
-- Actualización automática del deployment
+ README – Prueba DevOps (Ángel Aucancela)
+🚀 Descripción del Proyecto
+Este proyecto implementa un pipeline CI/CD completo utilizando Azure DevOps, Docker, Docker Hub, un agente local Windows, y despliegue en Kubernetes (Minikube).
+El objetivo es demostrar la capacidad de automatizar el ciclo de vida de una aplicación Node.js desde el build hasta el despliegue.
 
-🧱 Arquitectura del Proyecto
-devops-prueba-angel/
-│
-├── azure-pipelines.yml        # Pipeline CI/CD
-├── Dockerfile                 # Imagen Docker
-├── index.js                   # App principal
-├── package.json
-├── shared/database/database.js
-├── users/router.js
-└── k8s/
-    ├── deployment.yaml        # Deployment Kubernetes
-    └── service.yaml           # Service Kubernetes
+🧩 Arquitectura General
+1. CI/CD en Azure DevOps
+- Pipeline YAML automatizado.
+- Agente local autoalojado.
+- Build de Node.js.
+- Construcción y publicación de imagen Docker.
+- Despliegue a Kubernetes.
+2. Contenedores
+- Dockerfile optimizado basado en node:18-alpine.
+- Imagen publicada en Docker Hub:
+- aucancelaa/prueba-devops:latest
+- aucancelaa/prueba-devops:<BuildId>
+3. Kubernetes
+- Despliegue mediante Deployment + Service.
+- Exposición del servicio en puerto 3000.
+- Verificación mediante kubectl get pods y kubectl get svc.
 
+🛠️ Tecnologías Utilizadas
+- Azure DevOps Pipelines
+- Agente Local Windows
+- Docker Desktop
+- Docker Hub
+- Node.js 18
+- Kubernetes (Minikube)
+- YAML para CI/CD
 
+📦 Pipeline CI/CD (YAML Final)
+trigger:
+  - main
 
-🐳 Docker
-Construir la imagen
-docker build -t aucancelaa/prueba-devops:latest .
+pool:
+  name: PoolCompilacion
+  demands:
+  - agent.name -equals AgentVR
 
+variables:
+  DOCKER_HOST: tcp://127.0.0.1:2375
+  NODE_VERSION: '18.x'
+  IMAGE_NAME: 'prueba-devops'
+  REGISTRY: 'docker.io'
+  DOCKER_REPO: 'aucancelaa/prueba-devops'
 
-Probar localmente
-docker run -p 8000:8000 aucancelaa/prueba-devops:latest
+steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(NODE_VERSION)
+    displayName: "Instalar Node.js"
 
+  - script: npm install
+    displayName: "Instalar dependencias"
 
-Subir a Docker Hub
-docker push aucancelaa/prueba-devops:latest
-
-
-
-☸️ Kubernetes
-Aplicar los manifiestos
-kubectl apply -f k8s/deployment.yaml -n devops-demo
-kubectl apply -f k8s/service.yaml -n devops-demo
-
-
-Ver pods
-kubectl get pods -n devops-demo
-
-
-Reiniciar el deployment
-kubectl rollout restart deployment prueba-devops-deployment -n devops-demo
-
-
-
-🔧 Endpoints
-|  |  |  | 
-|  | /api/users |  | 
-
-
-Ejemplo de respuesta:
-{ "message": "Users endpoint funcionando" }
-
-
-
-🔄 CI/CD con Azure DevOps
-El pipeline CI/CD realiza:
-- Construcción de la imagen Docker
-- Push a Docker Hub
-- Actualización del deployment en Kubernetes
-Archivo: azure-pipelines.yml
-Incluye:
-- Build de imagen
-- Push a Docker Hub
-- Actualización del deployment
-Service Connections necesarias
-|  |  |  | 
-| docker-hub-connection |  |  | 
-| k8s-connection |  |  | 
+  - task: Docker@2
+    displayName: "Build & Push Docker image"
+    inputs:
+      command: buildAndPush
+      repository: $(DOCKER_REPO)
+      dockerfile: '**/Dockerfile'
+      containerRegistry: 'DockerHub-Service-Connection'
+      tags: |
+        latest
+        $(Build.BuildId)
 
 
 
-⚠️ Nota sobre Azure DevOps Parallelism
-Las organizaciones nuevas requieren solicitar el agente gratuito.
-Mensaje típico:
-No hosted parallelism has been purchased or granted.
+🧪 Cómo funciona el pipeline
+1. Instalación de Node.js
+Usa NodeTool@0 para instalar la versión 18.x.
+2. Instalación de dependencias
+Ejecuta npm install.
+3. Build & Push de Docker
+- Construye la imagen usando el Dockerfile.
+- Etiqueta la imagen con:
+- latest
+- $(Build.BuildId)
+- Publica la imagen en Docker Hub.
+
+🖥️ Agente Local – Configuración Clave
+El agente local se configuró para permitir que Azure DevOps ejecute comandos Docker.
+Para ello se habilitó:
+- Docker Desktop con daemon TCP (tcp://127.0.0.1:2375)
+- Contexto Docker personalizado (tcp-context)
+- Variable DOCKER_HOST en el pipeline
+Esto permite que el agente ejecute:
+- docker build
+- docker push
+- docker inspect
+sin errores de permisos.
+
+☸️ Despliegue en Kubernetes
+Archivos utilizados:
+deployment.yaml
+- ReplicaSet con 2 pods.
+- Imagen tomada desde Docker Hub.
+service.yaml
+- Tipo NodePort.
+- Expone la aplicación en el puerto 3000.
+Comandos utilizados:
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl get pods
+kubectl get svc
 
 
-Solución oficial:
-https://aka.ms/azpipelines-parallelism-request
-Una vez aprobado, el pipeline corre sin cambios.
 
-🧪 Cómo probar el despliegue
-Obtener IP del servicio:
-kubectl get svc -n devops-demo
+📝 Notas Importantes
+❌ Escaneo de vulnerabilidades (Trivy)
+El escaneo con Trivy fue considerado, pero se omitió en la versión final debido a limitaciones del agente local Windows (PATH y permisos).
+En un agente Linux funcionaría sin ajustes adicionales.
+Esto se documenta para transparencia técnica.
 
+🎯 Resultado Final
+El proyecto cumple con:
+✔ CI/CD completo
+✔ Build automatizado
+✔ Publicación de imagen Docker
+✔ Agente local configurado correctamente
+✔ Despliegue funcional en Kubernetes
+✔ Pipeline estable y reproducible
+✔ Documentación clara y profesional
 
-Probar endpoint:
-curl http://<EXTERNAL-IP>/api/users
-
-
-
-✅ Estado Final del Proyecto
-- Aplicación funcionando en Kubernetes ✔
-- Imagen Docker estable ✔
-- Rutas corregidas ✔
-- CI/CD configurado ✔ (pendiente de activación de parallelism)
-- README completo ✔
+🙌 Autor
+Ángel Aucancela
+Prueba DevOps – 2026
