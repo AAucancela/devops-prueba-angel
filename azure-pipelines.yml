@@ -1,43 +1,42 @@
 trigger:
-  branches:
-    include:
-      - main
+  - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: PoolCompilacion
+  demands:
+  - agent.name -equals AgentVR
 
 variables:
-  dockerRegistryServiceConnection: 'docker-hub-connection'
-  imageRepository: 'aucancelaa/prueba-devops'
-  containerRegistry: 'docker.io'
-  tag: '$(Build.BuildId)'
-  kubernetesServiceConnection: 'k8s-connection'
-  namespace: 'devops-demo'
-  deploymentName: 'prueba-devops-deployment'
+  NODE_VERSION: '18.x'
+  IMAGE_NAME: 'prueba-devops'
+  REGISTRY: 'docker.io'
+  DOCKER_REPO: 'aucancelaa/prueba-devops'
 
 steps:
-- task: Docker@2
-  displayName: 'Build Docker image'
-  inputs:
-    command: 'build'
-    repository: '$(imageRepository)'
-    dockerfile: '**/Dockerfile'
-    tags: |
-      $(tag)
+  - task: NodeTool@0
+    inputs:
+      versionSpec: $(NODE_VERSION)
+    displayName: "Instalar Node.js"
 
-- task: Docker@2
-  displayName: 'Push Docker image'
-  inputs:
-    command: 'push'
-    repository: '$(imageRepository)'
-    tags: |
-      $(tag)
+  - script: npm install
+    displayName: "Instalar dependencias"
 
-- task: Kubernetes@1
-  displayName: 'Set image in Kubernetes deployment'
-  inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceConnection: '$(kubernetesServiceConnection)'
-    namespace: '$(namespace)'
-    command: 'set'
-    arguments: 'image deployment/$(deploymentName) prueba-devops-container=$(imageRepository):$(tag)'
+  # Tests desactivados
+  # - script: npm test -- --coverage
+  #   displayName: "Ejecutar tests con Jest"
+
+  - task: Docker@2
+    displayName: "Build & Push Docker image"
+    inputs:
+      command: buildAndPush
+      repository: $(DOCKER_REPO)
+      dockerfile: '**/Dockerfile'
+      containerRegistry: 'DockerHub-Service-Connection'
+      tags: |
+        latest
+        $(Build.BuildId)
+
+  - script: |
+      echo "Escaneo de vulnerabilidades con Trivy"
+      trivy image $(DOCKER_REPO):latest
+    displayName: "Trivy Scan"
