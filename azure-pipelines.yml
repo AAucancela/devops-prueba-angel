@@ -7,6 +7,7 @@ pool:
   - agent.name -equals AgentVR
 
 variables:
+  DOCKER_HOST: tcp://127.0.0.1:2375   # ← ESTA ES LA CLAVE
   NODE_VERSION: '18.x'
   IMAGE_NAME: 'prueba-devops'
   REGISTRY: 'docker.io'
