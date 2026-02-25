@@ -7,7 +7,7 @@ pool:
   - agent.name -equals AgentVR
 
 variables:
-  DOCKER_HOST: tcp://127.0.0.1:2375   # ← ESTA ES LA CLAVE
+  DOCKER_HOST: tcp://127.0.0.1:2375
   NODE_VERSION: '18.x'
   IMAGE_NAME: 'prueba-devops'
   REGISTRY: 'docker.io'
@@ -22,10 +22,6 @@ steps:
   - script: npm install
     displayName: "Instalar dependencias"
 
-  # Tests desactivados
-  # - script: npm test -- --coverage
-  #   displayName: "Ejecutar tests con Jest"
-
   - task: Docker@2
     displayName: "Build & Push Docker image"
     inputs:
@@ -36,6 +32,9 @@ steps:
       tags: |
         latest
         $(Build.BuildId)
+
+  - script: set PATH=%PATH%;C:\Users\Super\AppData\Local\Microsoft\WinGet\Packages\AquaSecurity.Trivy_Microsoft.Winget.Source_8wekyb3d8bbwe
+    displayName: "Fix PATH for Trivy"
 
   - script: |
       echo "Escaneo de vulnerabilidades con Trivy"
